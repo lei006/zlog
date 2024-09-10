@@ -18,7 +18,7 @@ import (
 	"github.com/sohaha/zlsgo/zutil"
 )
 
-// log header information tag bit, using bitmap mode
+// Log header information tag bit, using bitmap mode
 const (
 	BitDate         int                                 = 1 << iota // Date marker  2019/01/23
 	BitTime                                                         // Time Label Bit  01:23:12
@@ -76,12 +76,12 @@ var LevelColous = []Color{
 type (
 	// Logger logger struct
 	Logger struct {
-		out         io.Writer
-		file        *zfile.MemoryFile
-		prefix      string
-		fileDir     string
-		fileName    string
-		writeBefore []func(level int, log string) bool
+		out        io.Writer
+		file       *zfile.MemoryFile
+		prefix     string
+		fileDir    string
+		fileName   string
+		ignoreLogs []string
 		// buf           bytes.Buffer
 		calldDepth    int
 		level         int
@@ -203,13 +203,14 @@ func (log *Logger) formatHeader(buf *bytes.Buffer, t time.Time, file string, lin
 
 // outPut Output log
 func (log *Logger) outPut(level int, s string, isWrap bool, calldDepth int, prefixText ...string) error {
-	if log.writeBefore != nil && len(s) > 0 {
+
+	if log.ignoreLogs != nil && len(s) > 0 {
 		p := s
 		if isWrap {
 			p = p[:len(p)-1]
 		}
-		for i := range log.writeBefore {
-			if log.writeBefore[i](level, p) {
+		for _, v := range log.ignoreLogs {
+			if zstring.Match(p, v) {
 				return nil
 			}
 		}
@@ -512,18 +513,7 @@ func (log *Logger) Write(b []byte) (n int, err error) {
 }
 
 func (log *Logger) SetIgnoreLog(logs ...string) {
-	log.WriteBefore(func(level int, log string) bool {
-		for _, v := range logs {
-			if zstring.Match(log, v) {
-				return true
-			}
-		}
-		return false
-	})
-}
-
-func (log *Logger) WriteBefore(fn ...func(level int, log string) bool) {
-	log.writeBefore = append(log.writeBefore, fn...)
+	log.ignoreLogs = append(log.ignoreLogs, logs...)
 }
 
 func itoa(buf *bytes.Buffer, i int, wid int) {
@@ -547,28 +537,8 @@ func itoa(buf *bytes.Buffer, i int, wid int) {
 	}
 }
 
-func (log *Logger) Writer() logWriter {
-	return logWriter{log: log}
-}
-
-type logWriter struct {
-	log *Logger
-}
-
-func (wr logWriter) Get() io.Writer {
-	return wr.log.out
-}
-
-func (wr logWriter) Set(w io.Writer) {
-	wr.log.out = w
-}
-
-func (wr logWriter) Reset(l *Logger) {
-	wr.log.out = l.out
-	wr.log.color = l.color
-	wr.log.prefix = l.prefix
-	wr.log.flag = l.flag
-	wr.log.level = l.level
+func (log *Logger) ResetWriter(w io.Writer) {
+	log.out = w
 }
 
 func formatArgs(args ...interface{}) []interface{} {
