@@ -10,7 +10,7 @@ Source code from：[zlsgo](https://github.com/sohaha/zlsgo)
 package main
 
 import (
-    "github.com/sohaha/zlsgo/zlog"
+    "github.com/lei006/zlog"
 )
 
 func main(){
@@ -30,7 +30,7 @@ func main(){
   package main
 
   import (
-      "github.com/sohaha/zlsgo/zlog"
+      "github.com/lei006/zlog"
   )
 
   func main(){

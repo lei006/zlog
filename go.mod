@@ -1,4 +1,4 @@
-module zlog
+module github.com/lei006/zlog
 
 go 1.22.4
 
