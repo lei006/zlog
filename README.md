@@ -1,7 +1,7 @@
 # zlog
 Very small logging library
 
-来源：[zlog](https://github.com/sohaha/zlsgo)
+Source code from：[zlsgo](https://github.com/sohaha/zlsgo)
 
 
 ### 日志工具
@@ -104,4 +104,8 @@ func main(){
 
   // 把日志保存到指定文件同时也在终端输出
   zlog.SetSaveFile("文件路径")
+
+  // 我实际使用的
+  zlog.SetSaveFile("logs.log", true)
+
 ```
